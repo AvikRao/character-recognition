@@ -10,4 +10,4 @@ for letter in ALPHABET :
     files = os.listdir()
     for i in range(len(files)) :
         os.system(f"convert -resize 400x400\! {files[i]} -compress none {str(i).zfill(3)}.ppm")
-        # print(files[i])
+        # os.remove()
