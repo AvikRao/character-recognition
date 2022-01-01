@@ -5,14 +5,32 @@
 #include <sstream>
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/SVD>
-#define IMAGE_SIZE 400
+#define IMAGE_SIZE 28
 
-const std::string ALPHABET("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+const std::string CHARACTERS("0123456789");
+
+// Convert a 2-D vector<vector<double> > into an Eigen MatrixXd.
+// Throws exception if rows do not have same length.
+Eigen::MatrixXf convert_vvd_to_matrix(std::vector<std::vector<float> > vvd) {
+
+    Eigen::MatrixXf result(IMAGE_SIZE, IMAGE_SIZE);
+    result.row(0) = Eigen::VectorXf::Map(&vvd[0][0], IMAGE_SIZE);
+
+    // Add each vector row to the MatrixXd. 
+    for (std::size_t i = 1; i < IMAGE_SIZE; i++) {
+
+        result.row(i) = Eigen::VectorXf::Map(&vvd[i][0], IMAGE_SIZE);
+    }
+
+    return result;
+}
 
 void construct_bases() {
 
-    std::string basis_dir("./basis_images/");
-    for (char c : ALPHABET) {
+    std::vector<Eigen::MatrixXf> bases;
+
+    std::string basis_dir("./basis_images/training/");
+    for (char c : CHARACTERS) {
         std::string letter_dir = basis_dir + c;
         for (auto &ifile_name : std::filesystem::directory_iterator(letter_dir)) {
 
@@ -50,11 +68,12 @@ void construct_bases() {
                     }
                 }
             }
-            // std::getline(ifile, line);
-            // std::cout << img_matrix.size() << std::endl;
 
             ifile.close();
-            // return;
+            std::cout << img_matrix.size() << std::endl;
+
+            Eigen::MatrixXf eigen_matrix = convert_vvd_to_matrix(img_matrix);
+            bases.push_back(eigen_matrix);
         }
     }
 }
